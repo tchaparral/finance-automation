@@ -7,8 +7,19 @@ export class TransactionsService {
     constructor(private readonly prisma: PrismaService) {}
 
     // GET /transactions
-    async findAll() {
+    async findAll(params?: { accountId?: number; categoryId?: number }) {
+        const where: any = {};
+
+        if (params?.accountId !== undefined) {
+            where.accountId = params.accountId
+        }
+
+        if (params?.categoryId !== undefined) {
+            where.accountId = params.accountId
+        }
+
         return this.prisma.transaction.findMany({
+            where,
             orderBy: {createdAt: 'desc'}
         });
     }

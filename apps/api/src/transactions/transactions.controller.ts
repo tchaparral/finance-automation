@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from "@nestjs/common";
+import { Controller, Get, Post, Body, Query } from "@nestjs/common";
 import { TransactionsService } from "./transactions.service";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 
@@ -9,8 +9,20 @@ export class TransactionsController {
    ) {}
 
    @Get()
-   findAll() {
-    return this.transactionService.findAll()
+   findAll(
+      @Query('accountId') accountId: string,
+      @Query('categoryId') categoryId: string,
+   ) {
+      const parseAccountId = 
+         accountId !== undefined ? Number(accountId) : undefined;
+
+      const parseCategoryId = 
+         categoryId !== undefined ? Number (categoryId) : undefined
+
+      return this.transactionService.findAll({
+         accountId: isNaN(parseAccountId!) ? undefined : parseAccountId,
+         categoryId: isNaN(parseCategoryId!) ? undefined : parseCategoryId,
+      });
    }
 
    @Post()
