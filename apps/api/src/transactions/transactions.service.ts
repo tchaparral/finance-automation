@@ -7,15 +7,23 @@ export class TransactionsService {
     constructor(private readonly prisma: PrismaService) {}
 
     // GET /transactions
-    async findAll(params?: { accountId?: number; categoryId?: number }) {
+    async findAll(params?: { 
+            accountId?: number;
+            categoryId?: number;
+            type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+        }) {
         const where: any = {};
 
         if (params?.accountId !== undefined) {
-            where.accountId = params.accountId
+            where.accountId = params.accountId;
         }
 
         if (params?.categoryId !== undefined) {
-            where.accountId = params.accountId
+            where.accountId = params.accountId;
+        }
+
+        if (params?.type !== undefined) {
+            where.type = params.type;
         }
 
         return this.prisma.transaction.findMany({

@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Body, Query } from "@nestjs/common";
 import { TransactionsService } from "./transactions.service";
-import { CreateTransactionDto } from "./dto/create-transaction.dto";
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
+import {CreateTransactionSchema} from "./schemas/transaction.schema"
+import type { CreateTransactionInput } from "./schemas/transaction.schema";
 
 @Controller('transactions')
 export class TransactionsController {
@@ -10,14 +12,20 @@ export class TransactionsController {
 
    @Get()
    findAll(
-      @Query('accountId') accountId: string,
-      @Query('categoryId') categoryId: string,
+      @Query('accountId') accountId?: string,
+      @Query('categoryId') categoryId?: string,
+      @Query('type') type?: string,
    ) {
       const parseAccountId = 
          accountId !== undefined ? Number(accountId) : undefined;
 
       const parseCategoryId = 
          categoryId !== undefined ? Number (categoryId) : undefined
+
+      const allowedTypes = ['INCOME', 'EXPENSE', 'TRANSFER'] as const;
+      const normalizedType = allowedTypes.includes(type as any)
+         ? (type as (typeof allowedTypes)[number])
+         : undefined;
 
       return this.transactionService.findAll({
          accountId: isNaN(parseAccountId!) ? undefined : parseAccountId,
@@ -26,7 +34,10 @@ export class TransactionsController {
    }
 
    @Post()
-   create(@Body() dto: CreateTransactionDto) {
-    return this.transactionService.create(dto);
+   create(
+      @Body(new ZodValidationPipe(CreateTransactionSchema))
+      data: CreateTransactionInput,
+   ) {
+      return this.transactionService.create(data);
    }
 }
