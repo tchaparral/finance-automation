@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateTransactionInput } from "./schemas/transaction.schema";
 
@@ -19,7 +19,7 @@ export class TransactionsService {
         }
 
         if (params?.categoryId !== undefined) {
-            where.accountId = params.accountId;
+            where.categoryId = params.categoryId;
         }
 
         if (params?.type !== undefined) {
@@ -28,13 +28,35 @@ export class TransactionsService {
 
         return this.prisma.transaction.findMany({
             where,
-            orderBy: {createdAt: 'desc'}
+            include: {
+                category: true
+            },
+            orderBy: {createdAt: 'desc'},
         });
     }
 
     // POST /transactions
     async create(data: CreateTransactionInput) {
-        const { type, amount, description, date, accountId, categoryId } = data;       
+        const { type, amount, description, date, accountId, categoryId } = data;
+        
+        if (type === 'TRANSFER' && categoryId) {
+            throw new BadRequestException('Transfer não pode ter categoria')
+        }
+
+        if (categoryId) {
+            const category = await this.prisma.category.findUnique({
+                where: {id: categoryId},
+            });
+
+        if (!category) {  
+            throw new NotFoundException('Categoria não encontrada');
+        }
+
+        if (category.type !== type) {
+            throw new BadRequestException(`Categoria do tipo ${category.type} não pode ser usada em transação ${type}`)
+        }
+
+        }
 
         return this.prisma.transaction.create({
             data: {

@@ -14,7 +14,7 @@ export class CategoriesController {
     @Get()
     findAll(
         @Query('name') name?: string,
-        @Query('type') type?: 'INCOME' | 'EXPENSE' | 'TRANSFER',        
+        @Query('type') type?: 'INCOME' | 'EXPENSE',        
     ) {
         return this.categoriesService.findAll({
             name,

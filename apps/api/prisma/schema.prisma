@@ -59,16 +59,17 @@ model Category {
   name        String
   type        CategoryType
   userId      Int?
-  user        User?          @relation(fields: [userId], references: [id])
+  user        User?         @relation(fields: [userId], references: [id])
   createdAt   DateTime      @default(now())
   transactions Transaction[]
+
+  @@unique([name, type, userId])
 }
 
 // Tipo da categoria
 enum CategoryType {
   EXPENSE
   INCOME
-  TRANSFER
 }
 
 // -----------------------------------------------------
@@ -113,8 +114,8 @@ model Recurring {
   id            Int            @id @default(autoincrement())
   name          String
   amount        Float
-  type          CategoryType   // receita ou despesa
-  dayOfMonth    Int            // dia do vencimento (1–28)
+  type          TransactionType  // receita ou despesa
+  dayOfMonth    Int              // dia do vencimento (1–28)
   userId        Int
   user          User           @relation(fields: [userId], references: [id])
   createdAt     DateTime       @default(now())
