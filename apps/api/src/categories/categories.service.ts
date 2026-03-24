@@ -1,26 +1,39 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateCategoryDto } from "./dto/create-category.dto";
+import { CreateCategoryInput } from "./schemas/categories.schema";
 
 @Injectable()
 export class CategoriesService {
     constructor(private readonly prisma: PrismaService) {}
 
     // GET /categories
-    async findAll() {
+    async findAll(params?: {
+        name?: string;
+        type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+    }) {
+        const where: any = {};
+
+        if (params?.name !== undefined) {
+            where.name = params.name
+        }
+
+        if (params?.type !== undefined) {
+            where.type = params.type
+        }
+
         return this.prisma.category.findMany({
+            where,
             orderBy: {createdAt: 'desc'}
         });
     }
 
     // POST /categories
-    async create(data: CreateCategoryDto) {
-        const { name, type, userId } = data
+    async create(data: CreateCategoryInput) {
+        const { name, type } = data
         return this.prisma.category.create({
             data: {
                 name,
                 type,
-                userId,
             },
         });
     }

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateTransactionDto } from "./dto/create-transaction.dto";
+import { CreateTransactionInput } from "./schemas/transaction.schema";
 
 @Injectable()
 export class TransactionsService {
@@ -33,8 +33,8 @@ export class TransactionsService {
     }
 
     // POST /transactions
-    async create(data: CreateTransactionDto) {
-        const {type, amount, description, date, userId, accountId, categoryId} = data;       
+    async create(data: CreateTransactionInput) {
+        const { type, amount, description, date, accountId, categoryId } = data;       
 
         return this.prisma.transaction.create({
             data: {
@@ -42,7 +42,6 @@ export class TransactionsService {
                 amount,
                 description,
                 date,
-                userId,
                 accountId,
                 categoryId,
             },

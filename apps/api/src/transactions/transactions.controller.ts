@@ -7,7 +7,7 @@ import type { CreateTransactionInput } from "./schemas/transaction.schema";
 @Controller('transactions')
 export class TransactionsController {
    constructor (
-    private readonly transactionService: TransactionsService,
+      private readonly transactionService: TransactionsService,
    ) {}
 
    @Get()

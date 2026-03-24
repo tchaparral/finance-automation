@@ -1,18 +1,32 @@
-import { Controller, Get, Post, Body } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
-import { CreateCategoryDto } from './dto/create-category.dto'
+import { Controller, Get, Post, Body, Query } from '@nestjs/common'
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
 import { CategoriesService } from './categories.service'
+import { CreateCategorySchema } from './schemas/categories.schema';
+import type { CreateCategoryInput } from './schemas/categories.schema';
+
 
 @Controller('categories')
 export class CategoriesController {
-    constructor(private readonly categoriesService: CategoriesService) {}
+    constructor (
+        private readonly categoriesService:CategoriesService,
+    ) {}   
 
     @Get()
-    findAll() {
-        return this.categoriesService.findAll();
+    findAll(
+        @Query('name') name?: string,
+        @Query('type') type?: 'INCOME' | 'EXPENSE' | 'TRANSFER',        
+    ) {
+        return this.categoriesService.findAll({
+            name,
+            type,
+        });
     }
+
     @Post()
-    create(@Body() dto: CreateCategoryDto) {
-        return this.categoriesService.create(dto)
+    create(
+        @Body(new ZodValidationPipe(CreateCategorySchema))
+        data: CreateCategoryInput,
+    ) {
+        return this.categoriesService.create(data);
     }
-}
+} 
